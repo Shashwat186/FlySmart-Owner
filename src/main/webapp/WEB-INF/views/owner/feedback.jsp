@@ -308,9 +308,7 @@ function confirmMarkAsChecked(url, feedbackId) {
           <td>${feedback.departureAirportName} (${feedback.departureAirportCode})</td>
           <td>${feedback.arrivalAirportName} (${feedback.arrivalAirportCode})</td>
           <td>
-            <c:set var="dateTimeString" value="${feedback.feedbackDateTime}" />
-            <fmt:parseDate value="${dateTimeString}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" type="both" />
-            <fmt:formatDate value="${parsedDate}" pattern="MMM dd, yyyy HH:mm" />
+            ${feedback.formattedFeedbackDateTime}
           </td>
           <td>${feedback.rating}</td>
           <td>${feedback.feedbackContent}</td>

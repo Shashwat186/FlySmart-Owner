@@ -1,8 +1,10 @@
 package smart.fly.dto;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class FeedbackDTO {
+	    private static final DateTimeFormatter DISPLAY_FORMAT = DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm");
 	   private int feedbackId;
 	    private int userId;
 	    private String userName;
@@ -40,6 +42,10 @@ public class FeedbackDTO {
 		}
 		public LocalDateTime getFeedbackDateTime() {
 			return feedbackDateTime;
+		}
+		// Formatted for display; avoids re-parsing LocalDateTime.toString(), which omits ":00" seconds
+		public String getFormattedFeedbackDateTime() {
+			return feedbackDateTime == null ? "" : feedbackDateTime.format(DISPLAY_FORMAT);
 		}
 		public void setFeedbackDateTime(LocalDateTime feedbackDateTime) {
 			this.feedbackDateTime = feedbackDateTime;
