@@ -96,7 +96,7 @@
 <dependency>
     <groupId>jakarta.servlet.jsp.jstl</groupId>
     <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.2</version>
 </dependency>
 <dependency>
     <groupId>org.glassfish.web</groupId>
@@ -106,7 +106,7 @@
  <dependency>
     <groupId>org.projectlombok</groupId>
     <artifactId>lombok</artifactId>
-    <version>1.18.30</version>
+    <version>1.18.48</version>
     <scope>provided</scope>
 </dependency>
 
@@ -121,7 +121,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.12</version>
+				<version>0.8.15</version>
 				<executions>
 					<execution>
 						<id>prepare-agent</id>
