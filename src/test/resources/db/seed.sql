@@ -1,17 +1,21 @@
 -- Baseline data shared by all repository tests. Re-applied before every test method.
 
-TRUNCATE TABLE user;
-TRUNCATE TABLE business_owner;
-TRUNCATE TABLE flight_manager;
-TRUNCATE TABLE airline;
-TRUNCATE TABLE airport;
-TRUNCATE TABLE seat_class;
-TRUNCATE TABLE flight;
-TRUNCATE TABLE flight_seats;
-TRUNCATE TABLE booking;
-TRUNCATE TABLE passenger;
-TRUNCATE TABLE payment;
-TRUNCATE TABLE feedback;
+-- DELETE rather than TRUNCATE: MySQL's TRUNCATE is slow DDL and resets AUTO_INCREMENT to 1, whereas DELETE keeps
+-- the counter at 1000+ (set in V1__baseline.sql) so generated keys never collide with seed ids.
+DELETE FROM user;
+DELETE FROM business_owner;
+DELETE FROM flight_manager;
+DELETE FROM airline;
+DELETE FROM airport;
+DELETE FROM seat_class;
+DELETE FROM flight;
+DELETE FROM flight_seats;
+DELETE FROM booking;
+DELETE FROM passenger;
+DELETE FROM payment;
+DELETE FROM feedback;
+DELETE FROM action_log;
+DELETE FROM password_reset_tokens;
 
 INSERT INTO user (user_id, name, email, phone, role, gender, dob, password_hash, password_salt) VALUES
     (1, 'Olivia Owner', 'owner@flysmart.test', '9000000001', 'OWNER', 'Female', '1980-01-15', 'h1', 's1'),
