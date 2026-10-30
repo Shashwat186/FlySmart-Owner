@@ -1,5 +1,8 @@
 package smart.fly.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +29,8 @@ import java.util.List;
 @Controller
 @RequestMapping("/owner")
 public class OwnerController {
+	private static final Logger logger = LoggerFactory.getLogger(OwnerController.class);
+
 
 	private final UserService userService;
 	private final FlightManagementService flightService;
@@ -69,12 +74,12 @@ public class OwnerController {
 	public String showOwnerDashboard(HttpSession session, Model model) {
 		User user = (User) session.getAttribute("user");
 		if (user == null) {
-			System.out.println("ERROR: User is NULL in /owner/dashboard!");
+			logger.debug("No user in session, redirecting to login");
 
 			return "redirect:/auth/login";
 		}
 		int userId = user.getUserId();
-		System.out.println("Dashboard - User ID from session: " + userId); // DEBUG
+		logger.debug("Dashboard - User ID from session: {}", userId);
 
 		int totalFlights = flightRepository.findAll().size();
 		model.addAttribute("totalFlights", totalFlights);
@@ -83,7 +88,7 @@ public class OwnerController {
 		model.addAttribute("totalUsers", totalUsers);
 
 		List<ActionLog> actionLog = loggingService.getActionLogForOwner(userId);
-		System.out.println("Action log from database: " + actionLog);
+		logger.debug("Action log from database: {}", actionLog);
 		model.addAttribute("actionLog", actionLog);
 
 		return "owner/dashboard";
@@ -107,13 +112,13 @@ public class OwnerController {
 			RedirectAttributes redirectAttributes,Model model) {
 		User currentUser = (User) session.getAttribute("user");
 		if (currentUser == null) {
-			System.out.println("ERROR: User is NULL in /owner/dashboard/flightmanager/add!");
+			logger.debug("No user in session, redirecting to login");
 			// Handle this error!
 			return "redirect:/auth/login"; // Or appropriate error handling
 		}
 
 		int ownerUserId = currentUser.getUserId(); // Correct User ID
-		System.out.println("addManager - Logging action for user ID: " + ownerUserId); // DEBUG
+		logger.debug("addManager - Logging action for user ID: {}", ownerUserId);
 
 		try {
 
@@ -139,40 +144,30 @@ public class OwnerController {
 	public String generateReports(HttpSession session, Model model) {
 		User currentUser = (User) session.getAttribute("user");
 		if (currentUser == null) {
-			System.out.println("ERROR: User is NULL in /owner/reports/generate!");
+			logger.debug("No user in session, redirecting to login");
 			// Handle this error!
 			return "redirect:/auth/login"; // Or appropriate error handling
 		}
 
 		int ownerUserId = currentUser.getUserId();
-		System.out.println(ownerUserId);
 		int airport = airportRepository.countAirport();
 		model.addAttribute("airport", airport);
-		System.out.println(airport);
 		int airline = airlineRepository.countAirline();
 		model.addAttribute("airline", airline);
-		System.out.println(airline);
 		int user = passengerService.countRegisteredPassengers();
 		model.addAttribute("user", user);
-		System.out.println(user);
 		int passenger = passengerService.countTotalPassengers();
 		model.addAttribute("passenger", passenger);
-		System.out.println(passenger);
 		int flights = flightRepository.countTotalFlight();
 		model.addAttribute("flights", flights);
-		System.out.println(flights);
 		int totalPrice = paymentRepository.totalPayment();
 		model.addAttribute("totalPrice", totalPrice);
-		System.out.println(totalPrice);
 		int scheduledFlights = flightRepository.scheduledFlights();
 		model.addAttribute("scheduledFlights", scheduledFlights);
-		System.out.println(scheduledFlights);
 		int delayedFlights = flightRepository.delayedFlights();
 		model.addAttribute("delayedFlights", delayedFlights);
-		System.out.println(delayedFlights);
 		List<FlightSeatAvailability> flightsAvailability = flightSeatsRepository.findFlightSeatAvailability();
 		model.addAttribute("flightsAvailability", flightsAvailability);
-		System.out.println(flightsAvailability);
 		return "owner/reports";
 	}
 
@@ -180,7 +175,7 @@ public class OwnerController {
 	public String listFlightManagers(HttpSession session, Model model) {
 		User user = (User) session.getAttribute("user");
 		if (user == null) {
-			System.out.println("ERROR: User is NULL in /owner/dashboard/flightmanager/list!");
+			logger.debug("No user in session, redirecting to login");
 			// Handle this error!
 			return "redirect:/auth/login"; // Or appropriate error handling
 		}
@@ -197,7 +192,7 @@ public class OwnerController {
 	public String viewAllFeedback(Model model, HttpSession session) {
 		User user = (User) session.getAttribute("user");
 		if (user == null) {
-			System.out.println("ERROR: User is NULL in /owner/feedback!");
+			logger.debug("No user in session, redirecting to login");
 			return "redirect:/auth/login";
 		}
 
@@ -213,7 +208,7 @@ public class OwnerController {
 			RedirectAttributes redirectAttributes) {
 		User currentUser = (User) session.getAttribute("user");
 		if (currentUser == null) {
-			System.out.println("ERROR: User is NULL in /owner/feedback/check!");
+			logger.debug("No user in session, redirecting to login");
 			return "redirect:/auth/login";
 		}
 

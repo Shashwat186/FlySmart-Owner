@@ -1,5 +1,8 @@
 package smart.fly.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
@@ -32,6 +35,8 @@ import java.util.List;
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
+	private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
+
 	private final FlightManagementService flightService;
 	private final FlightManagerRepository flightManagerRepository;
 	private final PassengerService passengerService;
@@ -68,7 +73,6 @@ public class AdminController {
 	@GetMapping("/flights")
 	public String listFlights(HttpSession session, Model model) {
 		User user = (User) session.getAttribute("user");
-		System.out.println(user);
 		List<Flight> flights;
 
 		flights = flightService.getAllFlights();
@@ -110,7 +114,7 @@ public class AdminController {
 
 		User user = (User) session.getAttribute("user");
 		if (user == null) {
-			System.out.println("ERROR: User is NULL in /admin/flights/add!");
+			logger.debug("No user in session, redirecting to login");
 			return "redirect:/auth/login";
 		}
 		int userId = user.getUserId();
@@ -139,18 +143,18 @@ public class AdminController {
 					departureAirport.getAirportId(), arrivalAirport.getAirportId(), departureDateTime, arrivalDateTime,
 					flightManager.getFmId());
 
-			System.out.println("Flight ID generated: " + flightId);
+			logger.debug("Flight ID generated: {}", flightId);
 
 			// Insert flight seats using repository
 
 			int economyInsert = addFlightRepository.addFlightSeats(flightId, 1, economyTotalSeats, 5000.0);
-			System.out.println("Economy seats insert: " + economyInsert + " rows affected");
+			logger.debug("Economy seats insert: {} rows affected", economyInsert);
 
 			int businessInsert = addFlightRepository.addFlightSeats(flightId, 2, businessTotalSeats, 12000.0);
-			System.out.println("Business seats insert: " + businessInsert + " rows affected");
+			logger.debug("Business seats insert: {} rows affected", businessInsert);
 
 			int firstClassInsert = addFlightRepository.addFlightSeats(flightId, 3, firstClassTotalSeats, 25000.0);
-			System.out.println("First Class seats insert: " + firstClassInsert + " rows affected");
+			logger.debug("First Class seats insert: {} rows affected", firstClassInsert);
 
 			loggingService.logAction(userId, "Added flight", "AdminController");
 			redirectAttributes.addFlashAttribute("success", "Flight added successfully");
@@ -183,7 +187,7 @@ public class AdminController {
 			return "admin/flights/add";
 
 		} catch (DateTimeParseException e) {
-			System.err.println("Date parsing error: " + e.getMessage());
+			logger.debug("Invalid date in add-flight form: {}", e.getMessage());
 
 			// Populate the model for the form
 			populateModelForAddFlight(model);
@@ -201,8 +205,7 @@ public class AdminController {
 			return "admin/flights/add";
 
 		} catch (Exception e) {
-			System.err.println("Error adding flight: " + e.getMessage());
-			e.printStackTrace();
+			logger.error("Error adding flight {}", flightNumber, e);
 
 			// Populate the model for the form
 			populateModelForAddFlight(model);
@@ -252,9 +255,9 @@ public class AdminController {
 		model.addAttribute("managers", flightManagerRepository.findAll());
 		model.addAttribute("statuses", Arrays.asList("Scheduled", "Delayed", "Cancelled", "Completed"));
 		model.addAttribute("managerId", flight.getFlightManager() != null ? flight.getFlightManager().getFmId() : null);
-		System.out.println("Flight ID: " + flight.getFlightId());
-		System.out.println("Manager ID: " + flight.getFmId()); // Should print non-zero if exists
-		System.out.println("Manager Object: " + flight.getFlightManager());
+		logger.debug("Flight ID: {}", flight.getFlightId());
+		logger.debug("Manager ID: {}", flight.getFmId());
+		logger.debug("Manager Object: {}", flight.getFlightManager());
 		return "admin/flights/edit";
 	}
 
@@ -268,7 +271,7 @@ public class AdminController {
 
 		User user = (User) session.getAttribute("user");
 		if (user == null) {
-			System.out.println("ERROR: User is NULL in /admin/flights/edit/{id}!");
+			logger.debug("No user in session, redirecting to login");
 			return "redirect:/auth/login";
 		}
 
@@ -351,7 +354,7 @@ public class AdminController {
 
 		User user = (User) session.getAttribute("user");
 		if (user == null) {
-			System.out.println("ERROR: User is NULL in /admin/flights/delete/{id}!");
+			logger.debug("No user in session, redirecting to login");
 			return "redirect:/auth/login";
 		}
 		int userId = user.getUserId();
@@ -378,7 +381,7 @@ public class AdminController {
 	                          HttpSession session, Model model) {
 	    User user = (User) session.getAttribute("user");
 	    if (user == null) {
-	        System.out.println("ERROR: User is NULL in /admin/flights/delete/{id}!");
+	        logger.debug("No user in session, redirecting to login");
 	        return "redirect:/auth/login"; // Handle appropriately
 	    }
 	    
@@ -393,7 +396,6 @@ public class AdminController {
 	        model.addAttribute("airport", airport); // Keep form data
 	        model.addAttribute("error", "Duplicate entries exist");
 	        int userId = user.getUserId();
-	        System.out.println(userId);
 	        return "admin/airports/add"; // Return to the add page with error
 	    } catch (Exception ex) {
 	        // Handle other potential errors
@@ -416,7 +418,7 @@ public class AdminController {
 
 		User user = (User) session.getAttribute("user");
 		if (user == null) {
-			System.out.println("ERROR: User is NULL in /admin/flights/delete/{id}!");
+			logger.debug("No user in session, redirecting to login");
 			return "redirect:/auth/login"; // Handle appropriately
 		}
 		try {
@@ -432,7 +434,6 @@ public class AdminController {
 			model.addAttribute("airport", airport); // Keep form data
 			model.addAttribute("error", "Duplicate entries exist"); // Log the error attempt
 			int userId = user.getUserId();
-			System.out.println(userId);
 			return "admin/airports/edit"; // Return to the edit page with error
 		} catch (Exception ex) {
 			// Handle other potential errors
@@ -448,7 +449,7 @@ public class AdminController {
 		redirectAttributes.addFlashAttribute("success", "Airport deleted successfully");
 		User user = (User) session.getAttribute("user");
 		if (user == null) {
-			System.out.println("ERROR: User is NULL in /admin/flights/delete/{id}!");
+			logger.debug("No user in session, redirecting to login");
 			return "redirect:/auth/login"; // Handle appropriately
 		}
 		int userId = user.getUserId();
@@ -483,7 +484,7 @@ public class AdminController {
 
 		User user = (User) session.getAttribute("user");
 		if (user == null) {
-			System.out.println("ERROR: User is NULL in /admin/flights/delete/{id}!");
+			logger.debug("No user in session, redirecting to login");
 			return "redirect:/auth/login"; // Handle appropriately
 		}
 		try {
@@ -500,7 +501,6 @@ public class AdminController {
 
 			// Log the error attempt
 			int userId = user.getUserId();
-			System.out.println(userId);
 
 			return "admin/airlines/add"; // Return to the edit page with error
 		} catch (Exception ex) {
@@ -518,7 +518,7 @@ public class AdminController {
 		Airline airline = airlineRepository.findById(id);
 		User user = (User) session.getAttribute("user");
 		if (user == null) {
-			System.out.println("ERROR: User is NULL in /admin/flights/delete/{id}!");
+			logger.debug("No user in session, redirecting to login");
 			return "redirect:/auth/login"; // Handle appropriately
 		}
 
@@ -554,7 +554,6 @@ public class AdminController {
 
 			// Log the error attempt
 			int userId = user.getUserId();
-			System.out.println(userId);
 
 			return "admin/airlines/edit"; // Return to the edit page with error
 		} catch (Exception ex) {
@@ -572,7 +571,7 @@ public class AdminController {
 		redirectAttributes.addFlashAttribute("success", "Airline deleted successfully");
 		User user = (User) session.getAttribute("user");
 		if (user == null) {
-			System.out.println("ERROR: User is NULL in /admin/flights/delete/{id}!");
+			logger.debug("No user in session, redirecting to login");
 			return "redirect:/auth/login"; // Handle appropriately
 		}
 		redirectAttributes.addFlashAttribute("success", "Airport added successfully");

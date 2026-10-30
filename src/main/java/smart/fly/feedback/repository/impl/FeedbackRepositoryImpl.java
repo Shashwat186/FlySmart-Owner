@@ -115,8 +115,7 @@ public class FeedbackRepositoryImpl implements FeedbackRepository {
 				feedbackList.add(feedback);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
-			throw new RuntimeException("Error fetching feedback data: " + e.getMessage());
+			throw new RuntimeException("Error fetching feedback data: " + e.getMessage(), e);
 		}
 
 		return feedbackList;
@@ -136,8 +135,7 @@ public class FeedbackRepositoryImpl implements FeedbackRepository {
 				throw new RuntimeException("Feedback not found with id: " + feedbackId);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
-			throw new RuntimeException("Error updating feedback status: " + e.getMessage());
+			throw new RuntimeException("Error updating feedback status: " + e.getMessage(), e);
 		}
 	}
 
